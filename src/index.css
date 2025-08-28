@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; }
+
+.card-enter {
+  @apply opacity-0 translate-y-2;
+}
+.card-enter-active {
+  @apply opacity-100 translate-y-0 transition-all duration-300;
+}
