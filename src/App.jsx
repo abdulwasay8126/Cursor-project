@@ -4,7 +4,7 @@ import { getClientId, hasVoted, markVoted, getTheme, setTheme, isOwnPost, markOw
 
 function cx(...xs){return xs.filter(Boolean).join(' ')}
 const MAX_LEN = 500
-const PREVIEW_LEN = 180
+const PREVIEW_LEN = 80 // Reduced to show fewer words initially
 
 function SafeText({ text }) {
   return <span>{text}</span>
@@ -117,13 +117,15 @@ export default function App(){
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {filtered.map(f=> (
               <li key={f.id} className={cx('card-base card-hover', theme==='dark'?'card-dark':'card-light')}>
-                <div className="text-[0.95rem] leading-6 mb-2 max-h-40 overflow-hidden">
+                <div className="message-preview text-[0.95rem] leading-6 mb-2">
                   <SafeText text={f.message.length>PREVIEW_LEN? f.message.slice(0,PREVIEW_LEN)+'…': f.message} />
                 </div>
                 {f.message.length>PREVIEW_LEN && (
-                  <details className="text-xs mb-2">
+                  <details className="card-expanded text-xs mb-2">
                     <summary className="read-more-summary">Read more</summary>
-                    <div className="mt-2 text-sm"><SafeText text={f.message} /></div>
+                    <div className="message-full mt-3 text-sm text-[0.95rem] leading-6">
+                      <SafeText text={f.message} />
+                    </div>
                   </details>
                 )}
                 <div className="flex items-center justify-between text-xs opacity-80">
