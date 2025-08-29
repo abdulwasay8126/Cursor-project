@@ -189,13 +189,18 @@ export default function App(){
   return (
     <div className={cx('min-h-screen bg-animated', theme==='dark'?'app-bg-dark text-gray-100':'app-bg-light text-gray-900')}>
       <div className="bg-content max-w-6xl mx-auto px-4 py-8">
-        <header className="flex items-center justify-between mb-8">
-          <h1 className="brand-title text-4xl sm:text-5xl">Mango Nexus Feedback Wall</h1>
-          <div className="flex items-center gap-2">
-            <button onClick={()=>setThemeState(theme==='dark'?'light':'dark')} className="btn-primary">
-              {theme==='dark'?'Light':'Dark'} Mode
-            </button>
+        <header className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="brand-title text-4xl sm:text-5xl">Mango Nexus Feedback Wall</h1>
+            <div className="flex items-center gap-2">
+              <button onClick={()=>setThemeState(theme==='dark'?'light':'dark')} className="btn-primary">
+                {theme==='dark'?'Light':'Dark'} Mode
+              </button>
+            </div>
           </div>
+          <p className="text-lg sm:text-xl opacity-80 font-medium text-center sm:text-left">
+            Share your thoughts and upvote what matters
+          </p>
         </header>
 
         <form onSubmit={submit} className="mb-6 space-y-3">
