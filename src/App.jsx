@@ -28,6 +28,11 @@ export default function App(){
   const [loading,setLoading]=useState(true)
   const [filter,setFilter]=useState('new')
   const [q,setQ]=useState('')
+  const [expandedCard, setExpandedCard] = useState(null)
+  const [comments, setComments] = useState([])
+  const [commentContent, setCommentContent] = useState('')
+  const [commentAuthor, setCommentAuthor] = useState('')
+  const [loadingComments, setLoadingComments] = useState(false)
   const clientId = useMemo(()=>getClientId(),[])
 
   useEffect(()=>{
@@ -53,6 +58,46 @@ export default function App(){
     return ()=>{ supabase.removeChannel(channel) }
   },[])
 
+  // Load comments for expanded card
+  async function loadComments(feedbackId) {
+    if (!feedbackId) return
+    setLoadingComments(true)
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .select('*')
+        .eq('feedback_id', feedbackId)
+        .order('created_at', { ascending: true })
+      
+      if (error) {
+        console.error('Error loading comments:', error)
+        setComments([])
+      } else {
+        setComments(data || [])
+      }
+    } catch (err) {
+      console.error('Error loading comments:', err)
+      setComments([])
+    }
+    setLoadingComments(false)
+  }
+
+  // Subscribe to comments changes
+  useEffect(() => {
+    if (!expandedCard) return
+
+    const channel = supabase.channel(`comments-${expandedCard.id}`)
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'comments', filter: `feedback_id=eq.${expandedCard.id}` },
+        () => loadComments(expandedCard.id)
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [expandedCard])
+
   async function submit(e){
     e.preventDefault()
     const text = message.trim()
@@ -71,6 +116,47 @@ export default function App(){
     if(hasVoted(id)) return
     const { error } = await supabase.from('feedback').update({votes:votes+1}).eq('id',id)
     if(!error) markVoted(id)
+  }
+
+  async function submitComment(e) {
+    e.preventDefault()
+    const content = commentContent.trim()
+    const author = commentAuthor.trim() || 'Anonymous'
+    
+    if (!content) return
+    if (!expandedCard) return
+
+    try {
+      const { error } = await supabase
+        .from('comments')
+        .insert([{
+          feedback_id: expandedCard.id,
+          content: content,
+          author: author
+        }])
+
+      if (error) {
+        console.error('Error submitting comment:', error)
+      } else {
+        setCommentContent('')
+        setCommentAuthor('')
+        // Comments will be updated via real-time subscription
+      }
+    } catch (err) {
+      console.error('Error submitting comment:', err)
+    }
+  }
+
+  function openExpandedCard(feedback) {
+    setExpandedCard(feedback)
+    loadComments(feedback.id)
+    setCommentContent('')
+    setCommentAuthor('')
+  }
+
+  function closeExpandedCard() {
+    setExpandedCard(null)
+    setComments([])
   }
 
   const filtered = useMemo(()=>{
@@ -121,12 +207,12 @@ export default function App(){
                   <SafeText text={f.message.length>PREVIEW_LEN? f.message.slice(0,PREVIEW_LEN)+'…': f.message} />
                 </div>
                 {f.message.length>PREVIEW_LEN && (
-                  <details className="card-expanded text-xs mb-2">
-                    <summary className="read-more-summary">Read more</summary>
-                    <div className="message-full mt-3 text-sm text-[0.95rem] leading-6">
-                      <SafeText text={f.message} />
-                    </div>
-                  </details>
+                  <button 
+                    onClick={() => openExpandedCard(f)}
+                    className="read-more-summary text-xs mb-2 block w-full text-left"
+                  >
+                    Read more
+                  </button>
                 )}
                 <div className="flex items-center justify-between text-xs opacity-80">
                   <span><SafeText text={f.author||'Anonymous'} /></span>
@@ -140,6 +226,73 @@ export default function App(){
           </ul>
         )}
       </div>
+
+      {/* Expanded Card Overlay */}
+      {expandedCard && (
+        <div className="expanded-card-overlay" onClick={closeExpandedCard}>
+          <div className="expanded-card" onClick={(e) => e.stopPropagation()}>
+            <button className="close-button" onClick={closeExpandedCard}>×</button>
+            
+            <div className="expanded-card-header">
+              <h2 className="text-xl font-semibold mb-2">Feedback Details</h2>
+            </div>
+
+            <div className="expanded-card-content">
+              <SafeText text={expandedCard.message} />
+            </div>
+
+            <div className="expanded-card-meta">
+              <span><SafeText text={expandedCard.author||'Anonymous'} /></span>
+              <span><TimeAgo ts={expandedCard.created_at} /></span>
+            </div>
+
+            <div className="comments-section">
+              <h3 className="comments-header">Comments ({comments.length})</h3>
+              
+              <form onSubmit={submitComment} className="comment-form">
+                <textarea
+                  className="comment-input"
+                  placeholder="Add a comment..."
+                  value={commentContent}
+                  onChange={(e) => setCommentContent(e.target.value)}
+                  rows={3}
+                />
+                <input
+                  className="comment-author-input"
+                  placeholder="Your name (optional)"
+                  value={commentAuthor}
+                  onChange={(e) => setCommentAuthor(e.target.value)}
+                />
+                <button type="submit" className="comment-submit">
+                  Post Comment
+                </button>
+              </form>
+
+              <div className="comments-list">
+                {loadingComments ? (
+                  <div className="no-comments">Loading comments...</div>
+                ) : comments.length === 0 ? (
+                  <div className="no-comments">No comments yet. Be the first to comment!</div>
+                ) : (
+                  comments.map(comment => (
+                    <div key={comment.id} className="comment-item">
+                      <div className="comment-content">
+                        <SafeText text={comment.content} />
+                      </div>
+                      <div className="comment-meta">
+                        <span className="comment-author">
+                          <SafeText text={comment.author} />
+                        </span>
+                        <span><TimeAgo ts={comment.created_at} /></span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
