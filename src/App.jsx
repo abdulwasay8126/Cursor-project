@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { supabase } from './lib/supabase'
-import { getClientId, hasVoted, markVoted, getTheme, setTheme, isOwnPost, markOwnPost } from './lib/localStorage'
+import { getClientId, hasVoted, markVoted, getTheme, setTheme, isOwnPost, markOwnPost, validateCommentLength, MAX_COMMENT_LEN } from './lib/localStorage'
 import cx from 'clsx'
 
 const MAX_LEN = 500
@@ -33,6 +33,7 @@ export default function App(){
   const [commentContent, setCommentContent] = useState('')
   const [commentAuthor, setCommentAuthor] = useState('')
   const [loadingComments, setLoadingComments] = useState(false)
+  const [commentError, setCommentError] = useState('')
   const clientId = useMemo(()=>getClientId(),[])
 
   useEffect(()=>{
@@ -123,8 +124,19 @@ export default function App(){
     const content = commentContent.trim()
     const author = commentAuthor.trim() || 'Anonymous'
     
-    if (!content) return
+    if (!content) {
+      setCommentError('Please enter a comment.')
+      return
+    }
+    
+    if (!validateCommentLength(content)) {
+      setCommentError(`Comment must be under ${MAX_COMMENT_LEN} characters.`)
+      return
+    }
+    
     if (!expandedCard) return
+
+    setCommentError('') // Clear any previous errors
 
     try {
       const { data, error } = await supabase
@@ -138,6 +150,7 @@ export default function App(){
 
       if (error) {
         console.error('Error submitting comment:', error)
+        setCommentError('Failed to post comment. Please try again.')
       } else {
         // Add the new comment immediately to the local state
         if (data && data[0]) {
@@ -148,6 +161,7 @@ export default function App(){
       }
     } catch (err) {
       console.error('Error submitting comment:', err)
+      setCommentError('Failed to post comment. Please try again.')
     }
   }
 
@@ -156,11 +170,13 @@ export default function App(){
     loadComments(feedback.id)
     setCommentContent('')
     setCommentAuthor('')
+    setCommentError('')
   }
 
   function closeExpandedCard() {
     setExpandedCard(null)
     setComments([])
+    setCommentError('')
   }
 
   const filtered = useMemo(()=>{
@@ -222,7 +238,14 @@ export default function App(){
                   <span><TimeAgo ts={f.created_at} /></span>
                 </div>
                 <div className="mt-3 flex items-center justify-between">
-                  <button onClick={()=>upvote(f.id,f.votes)} disabled={hasVoted(f.id)||isOwnPost(f.id)} className={cx('btn-primary text-sm border', (hasVoted(f.id)||isOwnPost(f.id))&&'opacity-60 cursor-not-allowed')}>▲ Upvote {f.votes}</button>
+                  <button 
+                    onClick={()=>upvote(f.id,f.votes)} 
+                    disabled={hasVoted(f.id)||isOwnPost(f.id)} 
+                    className={cx('btn-primary text-sm border', (hasVoted(f.id)||isOwnPost(f.id))&&'opacity-60 cursor-not-allowed')}
+                    title={isOwnPost(f.id) ? "You can't upvote your own post" : hasVoted(f.id) ? "You've already upvoted this post" : "Upvote this post"}
+                  >
+                    ▲ Upvote {f.votes}
+                  </button>
                 </div>
               </li>
             ))}
@@ -253,14 +276,20 @@ export default function App(){
               <h3 className="comments-header">Comments ({comments.length})</h3>
               
               <form onSubmit={submitComment} className="comment-form">
-                <textarea
-                  value={commentContent}
-                  onChange={(e) => setCommentContent(e.target.value)}
-                  placeholder="Add a comment..."
-                  className="comment-input"
-                  rows="3"
-                  required
-                />
+                <div className="relative">
+                  <textarea
+                    value={commentContent}
+                    onChange={(e) => setCommentContent(e.target.value)}
+                    placeholder="Add a comment..."
+                    className="comment-input"
+                    rows="3"
+                    maxLength={MAX_COMMENT_LEN}
+                    required
+                  />
+                  <div className="text-xs text-gray-500 mt-1 text-right">
+                    {commentContent.length}/{MAX_COMMENT_LEN} characters
+                  </div>
+                </div>
                 <input
                   type="text"
                   value={commentAuthor}
@@ -271,6 +300,7 @@ export default function App(){
                 <button type="submit" className="comment-submit">
                   Post Comment
                 </button>
+                {commentError && <p className="text-red-500 text-sm mt-2">{commentError}</p>}
               </form>
 
               <div className="comments-list">
