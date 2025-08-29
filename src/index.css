@@ -13,16 +13,16 @@ html, body, #root { height: 100%; }
               linear-gradient(180deg, #0a0a11 0%, #15121d 100%);
 }
 
-/* Subtle animated ambient glow (3D-like) - Reduced intensity */
+/* Subtle animated ambient glow (3D-like) - Further reduced intensity */
 .bg-animated { position: relative; }
 .bg-animated::before {
   content: "";
   position: fixed;
   inset: -10%;
   background:
-    radial-gradient(600px circle at 20% 12%, rgba(250, 204, 21, 0.04), transparent 60%),
-    radial-gradient(500px circle at 80% 28%, rgba(234, 179, 8, 0.035), transparent 60%),
-    radial-gradient(420px circle at 50% 92%, rgba(250, 204, 21, 0.03), transparent 60%);
+    radial-gradient(600px circle at 20% 12%, rgba(250, 204, 21, 0.02), transparent 60%),
+    radial-gradient(500px circle at 80% 28%, rgba(234, 179, 8, 0.015), transparent 60%),
+    radial-gradient(420px circle at 50% 92%, rgba(250, 204, 21, 0.015), transparent 60%);
   filter: blur(28px);
   animation: float 18s ease-in-out infinite;
   pointer-events: none;
@@ -30,9 +30,9 @@ html, body, #root { height: 100%; }
 }
 .dark .bg-animated::before {
   background:
-    radial-gradient(600px circle at 20% 12%, rgba(250, 204, 21, 0.06), transparent 60%),
-    radial-gradient(500px circle at 80% 28%, rgba(252, 211, 77, 0.05), transparent 60%),
-    radial-gradient(420px circle at 50% 92%, rgba(250, 204, 21, 0.04), transparent 60%);
+    radial-gradient(600px circle at 20% 12%, rgba(250, 204, 21, 0.03), transparent 60%),
+    radial-gradient(500px circle at 80% 28%, rgba(252, 211, 77, 0.025), transparent 60%),
+    radial-gradient(420px circle at 50% 92%, rgba(250, 204, 21, 0.02), transparent 60%);
 }
 .bg-content { position: relative; z-index: 1; }
 
@@ -42,7 +42,7 @@ html, body, #root { height: 100%; }
   100% { transform: translate3d(0,0,0) scale(1); }
 }
 
-/* Brand title - Fixed text clipping and reduced glow */
+/* Brand title - Fixed text clipping with better padding and reduced glow */
 .brand-title {
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -51,21 +51,22 @@ html, body, #root { height: 100%; }
   background-clip: text;
   color: transparent;
   text-shadow: 
-    0 2px 8px rgba(250, 204, 21, 0.25),
-    0 4px 16px rgba(250, 204, 21, 0.15);
-  /* Ensure text doesn't get clipped */
-  padding: 4px 0;
-  line-height: 1.2;
+    0 1px 4px rgba(250, 204, 21, 0.15),
+    0 2px 8px rgba(250, 204, 21, 0.10);
+  /* Ensure text doesn't get clipped - increased padding */
+  padding: 6px 0;
+  line-height: 1.3;
   display: inline-block;
   overflow: visible;
+  margin: 0;
 }
 
 /* Enhanced dark mode brand title - Reduced glow */
 .dark .brand-title {
   text-shadow: 
-    0 2px 10px rgba(250, 204, 21, 0.35),
-    0 4px 20px rgba(250, 204, 21, 0.25),
-    0 0 30px rgba(250, 204, 21, 0.15);
+    0 1px 6px rgba(250, 204, 21, 0.20),
+    0 2px 12px rgba(250, 204, 21, 0.15),
+    0 0 20px rgba(250, 204, 21, 0.08);
 }
 
 /* Card styles with yellow accents */
@@ -116,21 +117,21 @@ html, body, #root { height: 100%; }
     0 0 70px rgba(250, 204, 21, 0.15);
 }
 
-/* Shiny buttons with reduced glow */
+/* Shiny buttons with further reduced glow */
 .btn-primary {
   @apply rounded px-4 py-2 font-medium text-white transition-all duration-200;
   background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #f59e0b 100%);
   box-shadow: 
-    0 4px 12px rgba(250, 204, 21, 0.25),
-    0 0 20px rgba(250, 204, 21, 0.15);
+    0 2px 8px rgba(250, 204, 21, 0.20),
+    0 0 15px rgba(250, 204, 21, 0.10);
 }
 
 .btn-primary:hover { 
   filter: brightness(1.15); 
   box-shadow: 
-    0 10px 24px rgba(250, 204, 21, 0.45),
-    0 0 30px rgba(250, 204, 21, 0.25),
-    0 0 50px rgba(250, 204, 21, 0.15);
+    0 6px 16px rgba(250, 204, 21, 0.35),
+    0 0 20px rgba(250, 204, 21, 0.20),
+    0 0 30px rgba(250, 204, 21, 0.10);
   transform: translateY(-2px); 
 }
 
@@ -139,20 +140,20 @@ html, body, #root { height: 100%; }
   transform: translateY(0); 
 }
 
-/* Enhanced dark mode button glow - Reduced */
+/* Enhanced dark mode button glow - Further reduced */
 .dark .btn-primary {
   box-shadow: 
-    0 4px 15px rgba(250, 204, 21, 0.35),
-    0 0 25px rgba(250, 204, 21, 0.20),
-    0 0 40px rgba(250, 204, 21, 0.10);
+    0 2px 10px rgba(250, 204, 21, 0.25),
+    0 0 15px rgba(250, 204, 21, 0.15),
+    0 0 25px rgba(250, 204, 21, 0.08);
 }
 
 .dark .btn-primary:hover {
   box-shadow: 
-    0 10px 30px rgba(250, 204, 21, 0.55),
-    0 0 40px rgba(250, 204, 21, 0.35),
-    0 0 60px rgba(250, 204, 21, 0.25),
-    0 0 80px rgba(250, 204, 21, 0.15);
+    0 6px 20px rgba(250, 204, 21, 0.40),
+    0 0 25px rgba(250, 204, 21, 0.25),
+    0 0 40px rgba(250, 204, 21, 0.15),
+    0 0 60px rgba(250, 204, 21, 0.08);
 }
 
 .card-enter {
@@ -198,11 +199,13 @@ details > summary::-webkit-details-marker { display: none; }
   max-height: 4.5em;
 }
 
-/* Full message when expanded */
+/* Full message when expanded - Fixed text wrapping */
 .message-full {
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 /* Expanded card overlay */
@@ -275,6 +278,11 @@ details > summary::-webkit-details-marker { display: none; }
   margin-bottom: 24px;
   line-height: 1.6;
   font-size: 16px;
+  /* Fixed text wrapping for long messages */
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .expanded-card-meta {
@@ -373,6 +381,10 @@ details > summary::-webkit-details-marker { display: none; }
 .comment-content {
   margin-bottom: 8px;
   line-height: 1.5;
+  /* Fixed text wrapping for comments */
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .comment-meta {
@@ -392,4 +404,24 @@ details > summary::-webkit-details-marker { display: none; }
   padding: 20px;
   opacity: 0.6;
   font-style: italic;
+}
+
+/* Add comment button for all posts */
+.add-comment-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #f59e0b 100%);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.add-comment-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
 }
