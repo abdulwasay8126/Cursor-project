@@ -4,9 +4,37 @@
 
 html, body, #root { height: 100%; }
 
+/* Gradient backgrounds for themes */
+.app-bg-light {
+  background: linear-gradient(135deg, #ffffff 0%, #f6f3ff 100%);
+}
+.app-bg-dark {
+  background: radial-gradient(60% 60% at 50% 0%, #1a1025 0%, #0a0611 60%),
+              linear-gradient(180deg, #0a0611 0%, #120a1f 100%);
+}
+
+/* Card glows */
+.card-glow-light { box-shadow: 0 8px 24px rgba(250, 180, 255, 0.25), inset 0 1px 0 rgba(255,255,255,0.6); }
+.card-glow-dark  { box-shadow: 0 8px 32px rgba(124, 58, 237, 0.35), 0 0 0 1px rgba(168,85,247,0.25); }
+
+/* Shini buttons */
+.btn-primary {
+  @apply rounded px-4 py-2 font-medium text-white transition-all duration-200;
+  background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 50%, #7c3aed 100%);
+}
+.btn-primary:hover { filter: brightness(1.15); box-shadow: 0 10px 24px rgba(124,58,237,0.45); transform: translateY(-1px); }
+.btn-primary:active { filter: brightness(0.95); transform: translateY(0); }
+
+/* Card hover */
+.card-hover { transition: transform .2s ease, box-shadow .2s ease; }
+.card-hover:hover { transform: translateY(-2px) scale(1.01); }
+
 .card-enter {
   @apply opacity-0 translate-y-2;
 }
 .card-enter-active {
   @apply opacity-100 translate-y-0 transition-all duration-300;
 }
+
+
+
