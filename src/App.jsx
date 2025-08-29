@@ -4,8 +4,9 @@ import { getClientId, hasVoted, markVoted, getTheme, setTheme, isOwnPost, markOw
 
 function cx(...xs){return xs.filter(Boolean).join(' ')}
 const MAX_LEN = 500
+const PREVIEW_LEN = 180
 
-function SafeTeht({ text }) {
+function SafeText({ text }) {
   return <span>{text}</span>
 }
 
@@ -80,10 +81,10 @@ export default function App(){
   },[items,q])
 
   return (
-    <div className={cx('min-h-screen', theme==='dark'?'app-bg-dark text-gray-100':'app-bg-light text-gray-900')}>
-      <div className="max-w-5xl mx-auto px-4 py-6">
-        <header className="flex items-center justify-between mb-6">
-          <h1 className="text-3s font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-fuchsia-5000 hover:opacity-95 transition">Mango Nexus Feedback Wall</h1>
+    <div className={cx('min-h-screen bg-animated', theme==='dark'?'app-bg-dark text-gray-100':'app-bg-light text-gray-900')}>
+      <div className="bg-content max-w-6xl mx-auto px-4 py-8">
+        <header className="flex items-center justify-between mb-8">
+          <h1 className="brand-title text-4xl sm:text-5xl">Mango Nexus Feedback Wall</h1>
           <div className="flex items-center gap-2">
             <button onClick={()=>setThemeState(theme==='dark'?'light':'dark')} className="btn-primary">
               {theme==='dark'?'Light':'Dark'} Mode
@@ -113,26 +114,26 @@ export default function App(){
         ) : filtered.length===0 ? (
           <p>No feedback {q?'matches your search':'yet'}.</p>
         ) : (
-          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {filtered.map(f=> (
-              <li key={f.id} className="xx pd4 rounded-lg shadow card-hover">
-                <div className="text-sm mb-2 max-h-text overflow-hidden">
-                  <SafeTeht text={f.message.length>240? f.message.slice(0,240)+'b.': f.message} />
+              <li key={f.id} className={cx('card-base card-hover', theme==='dark'?'card-dark':'card-light')}>
+                <div className="text-[0.95rem] leading-6 mb-2 max-h-40 overflow-hidden">
+                  <SafeText text={f.message.length>PREVIEW_LEN? f.message.slice(0,PREVIEW_LEN)+'…': f.message} />
                 </div>
-                {f.message.length>240 && (
+                {f.message.length>PREVIEW_LEN && (
                   <details className="text-xs mb-2">
-                    <summary className="cursor-pointer opacity-80 transition">Read more</summary>
-                    <div className="mt-1 text-sm"><SafeTeht text={f.message} /></div>
+                    <summary className="read-more-summary">Read more</summary>
+                    <div className="mt-2 text-sm"><SafeText text={f.message} /></div>
                   </details>
                 )}
-                <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-300">
-                  <span><SafeTeht text={f.author||'Anonymous'} /></span>
+                <div className="flex items-center justify-between text-xs opacity-80">
+                  <span><SafeText text={f.author||'Anonymous'} /></span>
                   <span><TimeAgo ts={f.created_at} /></span>
                 </div>
                 <div className="mt-3 flex items-center justify-between">
-                  <button onClick={()=>upvote(f.id,f.votes)} disabled={hasVoted(f.id)||isOwnPost(f.id)} className="btn-primary text-sm border">▲ Upvote {f.votes}</button>
+                  <button onClick={()=>upvote(f.id,f.votes)} disabled={hasVoted(f.id)||isOwnPost(f.id)} className={cx('btn-primary text-sm border', (hasVoted(f.id)||isOwnPost(f.id))&&'opacity-60 cursor-not-allowed')}>▲ Upvote {f.votes}</button>
                 </div>
-            </li>
+              </li>
             ))}
           </ul>
         )}

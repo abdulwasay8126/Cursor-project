@@ -44,4 +44,3 @@ export function markOwnPost(feedbackId) {
   set.add(feedbackId)
   localStorage.setItem(OWN_KEY, JSON.stringify(Array.from(set)))
 }
-
