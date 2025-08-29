@@ -1,5 +1,6 @@
 const KEY = 'feedbackwall.client_id'
 const VOTED_KEY = 'feedbackwall.voted'
+const OWN_KEY = 'feedbackwall.own_posts'
 
 export function getClientId() {
   let id = localStorage.getItem(KEY)
@@ -30,3 +31,17 @@ export function getTheme() {
 export function setTheme(t) {
   localStorage.setItem('feedbackwall.theme', t)
 }
+
+export function isOwnPost(feedbackId) {
+  const raw = localStorage.getItem(OWN_KEY)
+  const set = new Set(raw ? JSON.parse(raw) : [])
+  return set.has(feedbackId)
+}
+
+export function markOwnPost(feedbackId) {
+  const raw = localStorage.getItem(OWN_KEY)
+  const set = new Set(raw ? JSON.parse(raw) : [])
+  set.add(feedbackId)
+  localStorage.setItem(OWN_KEY, JSON.stringify(Array.from(set)))
+}
+
