@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { supabase } from './lib/supabase'
 import { getClientId, hasVoted, markVoted, getTheme, setTheme, isOwnPost, markOwnPost } from './lib/localStorage'
-import { cx } from 'clsx'
+import cx from 'clsx'
 
 const MAX_LEN = 500
 const PREVIEW_LEN = 80 // Reduced to show fewer words initially
