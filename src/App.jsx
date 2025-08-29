@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { supabase } from './lib/supabase'
-import { getClientId, hasVoted, markVoted, getTheme, setTheme, isOwnPost, markOwnPost, validateCommentLength, MAX_COMMENT_LEN, setUserEmail, canVoteOnPost } from './lib/localStorage'
+import { getClientId, hasVoted, markVoted, getTheme, setTheme, isOwnPost, markOwnPost, validateCommentLength, MAX_COMMENT_LEN } from './lib/localStorage'
 import cx from 'clsx'
 
 const MAX_LEN = 500
@@ -23,7 +23,6 @@ export default function App(){
   const [theme,setThemeState]=useState(getTheme())
   const [message,setMessage]=useState('')
   const [author,setAuthor]=useState('')
-  const [email,setEmail]=useState('')
   const [error,setError]=useState('')
   const [items,setItems]=useState([])
   const [loading,setLoading]=useState(true)
@@ -33,7 +32,6 @@ export default function App(){
   const [comments, setComments] = useState([])
   const [commentContent, setCommentContent] = useState('')
   const [commentAuthor, setCommentAuthor] = useState('')
-  const [commentEmail, setCommentEmail] = useState('')
   const [loadingComments, setLoadingComments] = useState(false)
   const [commentError, setCommentError] = useState('')
   const clientId = useMemo(()=>getClientId(),[])
@@ -105,34 +103,18 @@ export default function App(){
     e.preventDefault()
     const text = message.trim()
     const who = author.trim()||'Anonymous'
-    const userEmail = email.trim()
-    
     if(!text){ setError('Please enter a message.'); return }
     if(text.length>MAX_LEN){ setError(`Keep it under ${MAX_LEN} characters.`); return }
-    
     setError('')
     const { data, error } = await supabase.from('feedback').insert([{message:text,author:who}]).select('id')
     if(error){ setError(error.message); return }
-    
-    if(data&&data[0]) {
-      // Store the user's email for voting tracking
-      if (userEmail) {
-        setUserEmail(userEmail)
-        markOwnPost(data[0].id, userEmail)
-      }
-    }
-    
-    setMessage(''); setAuthor(''); setEmail('')
+    if(data&&data[0]) markOwnPost(data[0].id)
+    setMessage(''); setAuthor('')
   }
 
   async function upvote(id,votes){
-    const voteCheck = canVoteOnPost(id)
-    if (!voteCheck.canVote) {
-      // Show error message to user
-      alert(voteCheck.reason)
-      return
-    }
-    
+    if(isOwnPost(id)) return
+    if(hasVoted(id)) return
     const { error } = await supabase.from('feedback').update({votes:votes+1}).eq('id',id)
     if(!error) markVoted(id)
   }
@@ -141,7 +123,6 @@ export default function App(){
     e.preventDefault()
     const content = commentContent.trim()
     const author = commentAuthor.trim() || 'Anonymous'
-    const userEmail = commentEmail.trim()
     
     if (!content) {
       setCommentError('Please enter a comment.')
@@ -171,18 +152,12 @@ export default function App(){
         console.error('Error submitting comment:', error)
         setCommentError('Failed to post comment. Please try again.')
       } else {
-        // Store the user's email for voting tracking
-        if (userEmail) {
-          setUserEmail(userEmail)
-        }
-        
         // Add the new comment immediately to the local state
         if (data && data[0]) {
           setComments(prevComments => [...prevComments, data[0]])
         }
         setCommentContent('')
         setCommentAuthor('')
-        setCommentEmail('')
       }
     } catch (err) {
       console.error('Error submitting comment:', err)
@@ -195,7 +170,6 @@ export default function App(){
     loadComments(feedback.id)
     setCommentContent('')
     setCommentAuthor('')
-    setCommentEmail('')
     setCommentError('')
   }
 
@@ -228,7 +202,6 @@ export default function App(){
           <textarea className="w-full p-3 rounded border focus:outline-none focus:ring dark:bg-gray-900/60" rows={3} maxLength={MAX_LEN} placeholder="Share your feedback..." value={message} onChange={e=>setMessage(e.target.value)} />
           <div className="flex flex-col sm:flex-row gap-3">
             <input className="flex-1 p-2 rounded border dark:bg-gray-900/60" placeholder="Your name (optional)" value={author} onChange={e=>setAuthor(e.target.value)} />
-            <input className="flex-1 p-2 rounded border dark:bg-gray-900/60" type="email" placeholder="Your email (for voting)" value={email} onChange={e=>setEmail(e.target.value)} />
             <button type="submit" className="btn-primary">Post</button>
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -267,11 +240,9 @@ export default function App(){
                 <div className="mt-3 flex items-center justify-between">
                   <button 
                     onClick={()=>upvote(f.id,f.votes)} 
-                    className={cx('btn-primary text-sm border')}
-                    title={(() => {
-                      const voteCheck = canVoteOnPost(f.id)
-                      return voteCheck.canVote ? "Upvote this post" : voteCheck.reason
-                    })()}
+                    disabled={hasVoted(f.id)||isOwnPost(f.id)} 
+                    className={cx('btn-primary text-sm border', (hasVoted(f.id)||isOwnPost(f.id))&&'opacity-60 cursor-not-allowed')}
+                    title={isOwnPost(f.id) ? "You can't upvote your own post" : hasVoted(f.id) ? "You've already upvoted this post" : "Upvote this post"}
                   >
                     ▲ Upvote {f.votes}
                   </button>
@@ -324,13 +295,6 @@ export default function App(){
                   value={commentAuthor}
                   onChange={(e) => setCommentAuthor(e.target.value)}
                   placeholder="Your name (optional)"
-                  className="comment-author-input"
-                />
-                <input
-                  type="email"
-                  value={commentEmail}
-                  onChange={(e) => setCommentEmail(e.target.value)}
-                  placeholder="Your email (for voting)"
                   className="comment-author-input"
                 />
                 <button type="submit" className="comment-submit">
