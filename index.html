@@ -1,6 +1,74 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Hero Section</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <!-- Hero Section -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="glow"></div>
+
+      <div class="hero__inner" data-parallax-container>
+        <div class="sparkle" aria-hidden="true">
+          <span class="sparkle__diamond"></span>
+        </div>
+
+        <h1 id="hero-title" class="hero__title">
+          Get help from <span class="gradient-text">AI that gets you</span>
+        </h1>
+        <p class="hero__subtitle">Ask naturally. Get personalized suggestions, plans, and ideas.</p>
+
+        <!-- Floating chat bubbles -->
+        <div class="bubbles" aria-hidden="true">
+          <div class="bubble bubble--sm" style="--x:8%;--y:8%;" data-parallax="6">
+            <span>What's a new hobby I should try?</span>
+            <i class="arrow">➜</i>
+          </div>
+          <div class="bubble bubble--md" style="--x:70%;--y:12%;" data-parallax="10">
+            <span>Where should I go on vacation this summer?</span>
+            <i class="arrow">➜</i>
+          </div>
+          <div class="bubble bubble--xs" style="--x:22%;--y:26%;" data-parallax="12">
+            <span>Keep in mind that I'm a vegetarian</span>
+            <i class="arrow">➜</i>
+          </div>
+          <div class="bubble bubble--lg" style="--x:10%;--y:68%;" data-parallax="8">
+            <span>Start a YouTube channel, but need content ideas</span>
+            <i class="arrow">➜</i>
+          </div>
+          <div class="bubble bubble--sm" style="--x:64%;--y:64%;" data-parallax="14">
+            <span>Summarize our discussion about the solar system</span>
+            <i class="arrow">➜</i>
+          </div>
+          <div class="bubble bubble--xs" style="--x:40%;--y:78%;" data-parallax="16">
+            <span>Remember that I don't own a car</span>
+            <i class="arrow">➜</i>
+          </div>
+          <div class="bubble bubble--md" style="--x:78%;--y:82%;" data-parallax="9">
+            <span>Write an alternative sonnet about coffee</span>
+            <i class="arrow">➜</i>
+          </div>
+          <div class="bubble bubble--xs" style="--x:6%;--y:44%;" data-parallax="11">
+            <span>What's a hidden gem in San Diego?</span>
+            <i class="arrow">➜</i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script src="./script.js"></script>
+  </body>
+  </html>
+
+<!doctype html>
+<html lang="en">
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Feedback Wall</title>
